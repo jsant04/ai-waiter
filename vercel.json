@@ -6,14 +6,17 @@
       "use": "@vercel/next"
     },
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": "backend/**"
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/main.py"
+      "dest": "api/index.py"
     },
     {
       "src": "/(.*)",
@@ -21,7 +24,7 @@
     }
   ],
   "functions": {
-    "backend/main.py": {
+    "api/index.py": {
       "maxDuration": 60,
       "memory": 1024
     }
