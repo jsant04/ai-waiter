@@ -139,7 +139,8 @@ def generate_answer(state: AgentState) -> dict:
 Your job:
   - Answer the customer's question using ONLY the provided menu information.
   - Be warm, welcoming, and concise (2–4 sentences max for simple questions).
-  - Use bullet points when listing multiple items.
+  - When listing dishes, use this exact format for each item:
+      - **Dish Name** - description or details
   - If a dish is not in the context, honestly say you don't have that info.
   - NEVER invent prices, ingredients, or dishes not in the menu data.
   - End with a helpful follow-up offer when appropriate.""")
@@ -170,10 +171,11 @@ def improve_answer(state: AgentState) -> dict:
 Improve the given restaurant waiter response to be:
   1. Friendly and warm — like a great server at a nice restaurant
   2. Concise — remove redundancy, keep it punchy
-  3. Well-structured — use bullet points for lists of items
+  3. Well-structured — when listing dishes use: - **Dish Name** - description
   4. Professional yet approachable
 
 ⚠️ Do NOT add new information. Do NOT change facts. Only improve presentation and tone.
+⚠️ Always keep dish names in **bold** followed by a dash and the description.
 Return only the improved response text, nothing else.""")
 
     human = HumanMessage(

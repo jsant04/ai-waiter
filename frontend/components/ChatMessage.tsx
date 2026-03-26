@@ -7,6 +7,42 @@ interface ChatMessageProps {
   message: Message;
 }
 
+/** Render a single line, converting **text** to <strong>text</strong> */
+function renderInline(line: string): React.ReactNode[] {
+  const parts = line.split(/(\*\*[^*]+\*\*)/);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
+/** Split content into lines and render each one */
+function renderContent(content: string) {
+  const lines = content.split("\n");
+  return lines.map((line, i) => {
+    const trimmed = line.trimStart();
+    const isListItem = trimmed.startsWith("- ") || trimmed.startsWith("• ");
+
+    if (isListItem) {
+      const text = trimmed.slice(2);
+      return (
+        <div key={i} className="flex gap-1.5 my-0.5">
+          <span className="mt-[2px] shrink-0 text-brand-500">•</span>
+          <span>{renderInline(text)}</span>
+        </div>
+      );
+    }
+
+    if (trimmed === "") {
+      return <div key={i} className="h-1" />;
+    }
+
+    return <div key={i}>{renderInline(line)}</div>;
+  });
+}
+
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
 
@@ -33,9 +69,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"
         )}
       >
-        {/* Render content — support newlines and bullet lists */}
-        <div className="prose-chat text-sm leading-relaxed whitespace-pre-wrap break-words">
-          {message.content}
+        <div className="text-sm leading-relaxed break-words">
+          {renderContent(message.content)}
         </div>
 
         {/* Timestamp */}
