@@ -15,7 +15,6 @@ openai>=1.50.0
 
 # Supabase
 supabase>=2.7.0,<3.0.0
-vecs>=0.4.3
 
 # Data Processing
 pandas>=2.2.0

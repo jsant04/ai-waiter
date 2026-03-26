@@ -46,7 +46,8 @@ def store_documents(documents: List[Document], restaurant_id: str) -> int:
 
     Steps:
       1. Delete all existing embeddings for this restaurant (full refresh).
-      2. Insert new embeddings via LangChain SupabaseVectorStore.
+      2. Embed all documents in one OpenAI batch call.
+      3. Insert rows directly into Supabase (no LangChain wrapper).
 
     Returns the number of documents stored.
     """
@@ -68,16 +69,27 @@ def store_documents(documents: List[Document], restaurant_id: str) -> int:
     except Exception as exc:
         logger.warning("Could not clear old embeddings (non-fatal): %s", exc)
 
-    # ── Step 2: embed + insert ────────────────────────
-    embeddings = get_embeddings()
-    SupabaseVectorStore.from_documents(
-        documents,
-        embeddings,
-        client=client,
-        table_name=TABLE_NAME,
-        query_name=QUERY_FUNCTION,
-        chunk_size=50,  # batch size for embedding API calls
-    )
+    # ── Step 2: embed all documents in one batch ─────
+    embedding_model = get_embeddings()
+    texts = [doc.page_content for doc in documents]
+    vectors = embedding_model.embed_documents(texts)
+
+    # ── Step 3: build rows and insert in batches ─────
+    BATCH_SIZE = 50
+    rows = [
+        {
+            "content": doc.page_content,
+            "metadata": doc.metadata,
+            "embedding": vector,
+            "restaurant_id": restaurant_id,
+        }
+        for doc, vector in zip(documents, vectors)
+    ]
+
+    for i in range(0, len(rows), BATCH_SIZE):
+        batch = rows[i : i + BATCH_SIZE]
+        client.table(TABLE_NAME).insert(batch).execute()
+        logger.debug("Inserted rows %d–%d", i, i + len(batch) - 1)
 
     logger.info(
         "Stored %d menu embeddings for restaurant '%s'",
