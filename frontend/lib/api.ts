@@ -1,12 +1,13 @@
 /**
  * AI Waiter – Backend API Client
  * --------------------------------
- * All calls to the FastAPI backend go through this module.
- * Set NEXT_PUBLIC_API_URL in .env.local to point to your backend.
+ * Development  → set NEXT_PUBLIC_API_URL=http://localhost:8000 in .env.local
+ * Vercel (monorepo) → leave NEXT_PUBLIC_API_URL unset; requests go to /api/*
+ *                     on the same domain via vercel.json routing.
  */
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL ?? "";
 
 const RESTAURANT_ID =
   process.env.NEXT_PUBLIC_RESTAURANT_ID ?? "default";
