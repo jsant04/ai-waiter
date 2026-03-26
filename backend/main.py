@@ -1,7 +1,13 @@
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+
+# Vercel runs from the repo root (/var/task), so `backend/` subdirectories
+# (routers, services, models, agents) are not on sys.path by default.
+# This ensures all relative imports resolve correctly both locally and on Vercel.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
